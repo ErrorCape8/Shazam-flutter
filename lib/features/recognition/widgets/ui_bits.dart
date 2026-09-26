@@ -12,9 +12,9 @@ class ContentFrame extends StatelessWidget {
   Widget build(BuildContext context) => Align(
     alignment: Alignment.topCenter,
     child: ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: wide ? 900 : 720),
+      constraints: BoxConstraints(maxWidth: wide ? 1010 : 720),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: wide ? 40 : 20),
+        padding: EdgeInsets.symmetric(horizontal: wide ? 28 : 20),
         child: child,
       ),
     ),

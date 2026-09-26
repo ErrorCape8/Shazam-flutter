@@ -39,6 +39,21 @@ class RecognitionTrack {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'artist': artist,
+    'album': album,
+    'artwork': artwork,
+    'genre': genre,
+    'releaseDate': releaseDate,
+    'links': {
+      'shazam': shazamUrl,
+      'appleMusic': appleMusicUrl,
+      'spotify': spotifyUrl,
+      'deezer': deezerUrl,
+    },
+  };
+
   static Map<String, dynamic>? _map(Object? value) {
     if (value is Map<String, dynamic>) return value;
     if (value is Map) return Map<String, dynamic>.from(value);

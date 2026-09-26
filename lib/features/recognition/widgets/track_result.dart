@@ -13,7 +13,7 @@ class TrackResult extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     margin: const EdgeInsets.only(bottom: 14),
-    padding: const EdgeInsets.all(17),
+    padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
     decoration: BoxDecoration(
       color: AppColors.surface,
       border: Border.all(color: AppColors.border),
@@ -25,7 +25,7 @@ class TrackResult extends StatelessWidget {
         Row(
           children: [
             _Artwork(track.artwork),
-            const SizedBox(width: 15),
+            const SizedBox(width: 19),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,7 +38,7 @@ class TrackResult extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: AppColors.text,
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -60,7 +60,7 @@ class TrackResult extends StatelessWidget {
         if (track.album.isNotEmpty ||
             track.genre.isNotEmpty ||
             track.releaseDate.isNotEmpty) ...[
-          const SizedBox(height: 15),
+          const SizedBox(height: 14),
           Wrap(
             spacing: 7,
             runSpacing: 7,
@@ -72,15 +72,28 @@ class TrackResult extends StatelessWidget {
           ),
         ],
         if (_links.isNotEmpty) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           const Divider(height: 1, color: AppColors.border),
+          const SizedBox(height: 13),
+          const Center(
+            child: Text(
+              'Escuchar en plataformas',
+              style: TextStyle(color: AppColors.muted, fontSize: 11),
+            ),
+          ),
           const SizedBox(height: 11),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _links
-                .map((entry) => _ServiceLink(label: entry.$1, url: entry.$2))
-                .toList(),
+          Row(
+            children: [
+              for (var index = 0; index < _links.length; index++) ...[
+                if (index > 0) const SizedBox(width: 8),
+                Expanded(
+                  child: _ServiceLink(
+                    label: _links[index].$1,
+                    url: _links[index].$2,
+                  ),
+                ),
+              ],
+            ],
           ),
         ],
       ],
@@ -103,8 +116,8 @@ class _Artwork extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fallback = Container(
-      width: 76,
-      height: 76,
+      width: 84,
+      height: 84,
       decoration: BoxDecoration(
         color: const Color(0xFF35231C),
         borderRadius: BorderRadius.circular(6),
@@ -116,8 +129,8 @@ class _Artwork extends StatelessWidget {
       borderRadius: BorderRadius.circular(6),
       child: Image.network(
         url,
-        width: 76,
-        height: 76,
+        width: 84,
+        height: 84,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => fallback,
       ),
@@ -147,6 +160,7 @@ class _ServiceLink extends StatelessWidget {
     }, size: 17),
     label: Text(label),
     style: OutlinedButton.styleFrom(
+      minimumSize: const Size.fromHeight(36),
       foregroundColor: AppColors.text,
       side: const BorderSide(color: AppColors.border),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),

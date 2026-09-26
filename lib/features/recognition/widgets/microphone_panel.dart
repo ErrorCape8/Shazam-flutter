@@ -20,8 +20,8 @@ class MicrophonePanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final time = '00:${seconds.toString().padLeft(2, '0')}';
     return Container(
-      constraints: const BoxConstraints(minHeight: 218),
-      padding: const EdgeInsets.all(23),
+      constraints: const BoxConstraints(minHeight: 220),
+      padding: const EdgeInsets.all(26),
       decoration: BoxDecoration(
         color: AppColors.red,
         borderRadius: BorderRadius.circular(9),
@@ -75,9 +75,9 @@ class MicrophonePanel extends StatelessWidget {
                     recording ? 'Grabando $time' : 'Grabar 8 segundos',
                   ),
                   style: FilledButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppColors.red,
-                    disabledBackgroundColor: const Color(0xFFFFE6A0),
+                    backgroundColor: AppColors.gold,
+                    foregroundColor: const Color(0xFF17120A),
+                    disabledBackgroundColor: const Color(0xFFD8CF00),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 12,

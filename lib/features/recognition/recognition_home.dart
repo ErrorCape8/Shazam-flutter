@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -47,10 +48,28 @@ class _RecognitionHomeState extends State<RecognitionHome> {
   Future<void> _loadKey() async {
     final preferences = await SharedPreferences.getInstance();
     final saved = preferences.getString('shazam_api_key') ?? '';
+    final savedTrack = preferences.getString('last_recognized_track');
+    RecognitionOutcome? lastOutcome;
+    if (savedTrack != null) {
+      try {
+        final decoded = jsonDecode(savedTrack);
+        if (decoded is Map) {
+          lastOutcome = RecognitionOutcome(
+            status: 'success',
+            tracks: [
+              RecognitionTrack.fromJson(Map<String, dynamic>.from(decoded)),
+            ],
+          );
+        }
+      } on FormatException {
+        await preferences.remove('last_recognized_track');
+      }
+    }
     if (!mounted) return;
     setState(() {
       _apiKey = saved;
       _keyController.text = saved;
+      _outcome = lastOutcome;
     });
   }
 
@@ -96,6 +115,13 @@ class _RecognitionHomeState extends State<RecognitionHome> {
         },
       );
       if (!mounted) return;
+      if (result.status == 'success' && result.tracks.isNotEmpty) {
+        final preferences = await SharedPreferences.getInstance();
+        await preferences.setString(
+          'last_recognized_track',
+          jsonEncode(result.tracks.first.toJson()),
+        );
+      }
       setState(() {
         _outcome = result;
         _busy = false;

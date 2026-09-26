@@ -17,7 +17,7 @@ class RecognitionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    height: 72,
+    height: 58,
     padding: EdgeInsets.symmetric(horizontal: wide ? 36 : 20),
     decoration: const BoxDecoration(
       border: Border(bottom: BorderSide(color: AppColors.border)),
@@ -71,7 +71,7 @@ class RecognitionRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    width: 226,
+    width: 195,
     padding: const EdgeInsets.fromLTRB(20, 28, 16, 20),
     decoration: const BoxDecoration(
       color: Color(0xFF160E0D),
@@ -143,22 +143,25 @@ class _RailItem extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => ListTile(
-    onTap: onTap,
-    dense: true,
-    selected: selected,
-    selectedTileColor: const Color(0xFF321317),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
-    leading: Icon(
-      icon,
-      size: 19,
-      color: selected ? AppColors.gold : AppColors.muted,
-    ),
-    title: Text(
-      label,
-      style: TextStyle(
-        color: selected ? Colors.white : AppColors.muted,
-        fontSize: 13,
+  Widget build(BuildContext context) => Material(
+    color: Colors.transparent,
+    child: ListTile(
+      onTap: onTap,
+      dense: true,
+      selected: selected,
+      selectedTileColor: const Color(0xFF321317),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+      leading: Icon(
+        icon,
+        size: 19,
+        color: selected ? AppColors.gold : AppColors.muted,
+      ),
+      title: Text(
+        label,
+        style: TextStyle(
+          color: selected ? Colors.white : AppColors.muted,
+          fontSize: 13,
+        ),
       ),
     ),
   );

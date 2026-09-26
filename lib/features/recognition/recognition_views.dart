@@ -35,10 +35,11 @@ class DiscoverView extends StatelessWidget {
     child: ListView(
       padding: const EdgeInsets.fromLTRB(0, 32, 0, 40),
       children: [
-        const Eyebrow('IDENTIFICACION DE AUDIO - API V2'),
+        const Center(child: Eyebrow('IDENTIFICACION DE AUDIO - API V2')),
         const SizedBox(height: 10),
         Text(
           'Encuentra el sonido.',
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: wide ? 36 : 30,
             height: 1.1,
@@ -49,6 +50,7 @@ class DiscoverView extends StatelessWidget {
         const SizedBox(height: 9),
         const Text(
           'Escucha lo que suena cerca y deja que la musica lo encuentre.',
+          textAlign: TextAlign.center,
           style: TextStyle(color: AppColors.muted, fontSize: 13),
         ),
         const SizedBox(height: 25),
@@ -63,9 +65,21 @@ class DiscoverView extends StatelessWidget {
           RecognitionProgress(message: statusMessage, uuid: jobId)
         else if (outcome != null &&
             outcome!.status == 'success' &&
-            outcome!.tracks.isNotEmpty)
-          for (final track in outcome!.tracks) TrackResult(track: track)
-        else if (statusMessage.isNotEmpty)
+            outcome!.tracks.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          const Center(
+            child: Text(
+              'Ultimo resultado',
+              style: TextStyle(
+                color: AppColors.text,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          for (final track in outcome!.tracks) TrackResult(track: track),
+        ] else if (statusMessage.isNotEmpty)
           RecognitionStatus(
             message: statusMessage,
             failed: outcome?.status == 'failed',
