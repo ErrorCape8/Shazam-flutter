@@ -16,46 +16,51 @@ class RecognitionHeader extends StatelessWidget {
   final VoidCallback onSettings;
 
   @override
-  Widget build(BuildContext context) => Container(
-    height: 58,
-    padding: EdgeInsets.symmetric(horizontal: wide ? 36 : 20),
-    decoration: const BoxDecoration(
-      border: Border(bottom: BorderSide(color: AppColors.border)),
-    ),
-    child: Row(
-      children: [
-        if (!wide) ...[
-          const Icon(Icons.graphic_eq_rounded, color: AppColors.red),
-          const SizedBox(width: 9),
-          const Text(
-            'Feel the Music',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
-          ),
-        ],
-        const Spacer(),
-        Text(
-          connected ? 'API CONFIGURADA' : 'FALTA CONFIGURAR',
-          style: TextStyle(
-            color: connected ? AppColors.gold : AppColors.muted,
-            fontSize: 9,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1,
-          ),
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final showBrand = !wide && constraints.maxWidth >= 430;
+      return Container(
+        height: 58,
+        padding: EdgeInsets.symmetric(horizontal: wide ? 36 : 20),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: AppColors.border)),
         ),
-        const SizedBox(width: 12),
-        IconButton(
-          onPressed: onSettings,
-          tooltip: 'Ajustes',
-          icon: const Icon(Icons.tune_rounded),
-          style: IconButton.styleFrom(
-            side: const BorderSide(color: AppColors.border),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+        child: Row(
+          children: [
+            if (showBrand) ...[
+              const Icon(Icons.graphic_eq_rounded, color: AppColors.red),
+              const SizedBox(width: 9),
+              const Text(
+                'Feel the Music',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+              ),
+            ],
+            const Spacer(),
+            Text(
+              connected ? 'API CONFIGURADA' : 'FALTA CONFIGURAR',
+              style: TextStyle(
+                color: connected ? AppColors.gold : AppColors.muted,
+                fontSize: 9,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1,
+              ),
             ),
-          ),
+            const SizedBox(width: 12),
+            IconButton(
+              onPressed: onSettings,
+              tooltip: 'Ajustes',
+              icon: const Icon(Icons.tune_rounded),
+              style: IconButton.styleFrom(
+                side: const BorderSide(color: AppColors.border),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
-    ),
+      );
+    },
   );
 }
 

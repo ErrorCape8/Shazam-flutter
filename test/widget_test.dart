@@ -6,6 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'dart:convert';
+import 'dart:ui' show Size;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,6 +25,24 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('RECONOCER DESDE UN ENLACE'), findsNothing);
+  });
+
+  testWidgets('adapta descubrimiento y ajustes a una pantalla movil', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    SharedPreferences.setMockInitialValues({});
+
+    await tester.pumpWidget(const SonaraRecognitionApp());
+    await tester.pumpAndSettle();
+    expect(find.text('Grabar 8 segundos'), findsOneWidget);
+
+    await tester.tap(find.text('Ajustes').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Configura la clave de shazam-api.com.'), findsOneWidget);
   });
 
   testWidgets('restaura y muestra la ultima cancion reconocida', (

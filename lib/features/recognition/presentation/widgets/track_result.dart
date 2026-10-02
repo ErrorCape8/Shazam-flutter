@@ -11,92 +11,92 @@ class TrackResult extends StatelessWidget {
   final RecognitionTrack track;
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => Card(
     margin: const EdgeInsets.only(bottom: 14),
-    padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-    decoration: BoxDecoration(
-      color: AppColors.surface,
-      border: Border.all(color: AppColors.border),
-      borderRadius: BorderRadius.circular(8),
+    elevation: 0,
+    color: AppColors.surface,
+    shape: RoundedRectangleBorder(
+      side: const BorderSide(color: AppColors.border),
+      borderRadius: BorderRadius.circular(16),
     ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            _Artwork(track.artwork),
-            const SizedBox(width: 19),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Eyebrow('CANCION IDENTIFICADA'),
-                  const SizedBox(height: 7),
-                  Text(
-                    track.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.text,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    track.artist,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.muted,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        if (track.album.isNotEmpty ||
-            track.genre.isNotEmpty ||
-            track.releaseDate.isNotEmpty) ...[
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 7,
-            runSpacing: 7,
-            children: [
-              if (track.album.isNotEmpty) MetadataTag(track.album),
-              if (track.genre.isNotEmpty) MetadataTag(track.genre),
-              if (track.releaseDate.isNotEmpty) MetadataTag(track.releaseDate),
-            ],
-          ),
-        ],
-        if (_links.isNotEmpty) ...[
-          const SizedBox(height: 20),
-          const Divider(height: 1, color: AppColors.border),
-          const SizedBox(height: 13),
-          const Center(
-            child: Text(
-              'Escuchar en plataformas',
-              style: TextStyle(color: AppColors.muted, fontSize: 11),
-            ),
-          ),
-          const SizedBox(height: 11),
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
             children: [
-              for (var index = 0; index < _links.length; index++) ...[
-                if (index > 0) const SizedBox(width: 8),
-                Expanded(
-                  child: _ServiceLink(
-                    label: _links[index].$1,
-                    url: _links[index].$2,
-                  ),
+              _Artwork(track.artwork),
+              const SizedBox(width: 19),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Eyebrow('CANCION IDENTIFICADA'),
+                    const SizedBox(height: 7),
+                    Text(
+                      track.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.text,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      track.artist,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.muted,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ],
           ),
+          if (track.album.isNotEmpty ||
+              track.genre.isNotEmpty ||
+              track.releaseDate.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 7,
+              runSpacing: 7,
+              children: [
+                if (track.album.isNotEmpty) MetadataTag(track.album),
+                if (track.genre.isNotEmpty) MetadataTag(track.genre),
+                if (track.releaseDate.isNotEmpty)
+                  MetadataTag(track.releaseDate),
+              ],
+            ),
+          ],
+          if (_links.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            const Divider(height: 1, color: AppColors.border),
+            const SizedBox(height: 13),
+            const Center(
+              child: Text(
+                'Escuchar en plataformas',
+                style: TextStyle(color: AppColors.muted, fontSize: 11),
+              ),
+            ),
+            const SizedBox(height: 11),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final link in _links)
+                  _ServiceLink(label: link.$1, url: link.$2),
+              ],
+            ),
+          ],
         ],
-      ],
+      ),
     ),
   );
 
@@ -160,10 +160,10 @@ class _ServiceLink extends StatelessWidget {
     }, size: 17),
     label: Text(label),
     style: OutlinedButton.styleFrom(
-      minimumSize: const Size.fromHeight(36),
+      minimumSize: const Size(140, 40),
       foregroundColor: AppColors.text,
       side: const BorderSide(color: AppColors.border),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   );
 }
