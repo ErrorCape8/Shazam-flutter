@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/app_theme.dart';
+import '../../../../app/app_theme.dart';
 import 'ui_bits.dart';
 
 class RecognitionHeader extends StatelessWidget {

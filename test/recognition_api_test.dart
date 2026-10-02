@@ -4,7 +4,9 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:sonara/services/recognition_api.dart';
+import 'package:sonara/features/recognition/data/datasources/recognition_remote_data_source.dart';
+import 'package:sonara/features/recognition/data/repositories/recognition_repository_impl.dart';
+import 'package:sonara/features/recognition/domain/usecases/recognize_audio.dart';
 
 void main() {
   test('uploads audio with Bearer auth and parses the async UUID', () async {
@@ -21,9 +23,12 @@ void main() {
         202,
       );
     });
-    final api = RecognitionApi('test-token', client: client);
+    final api = RecognitionRemoteDataSource(client: client);
 
-    final job = await api.recognizeAudio(Uint8List.fromList([1, 2, 3]));
+    final job = await api.submitAudio(
+      Uint8List.fromList([1, 2, 3]),
+      apiKey: 'test-token',
+    );
 
     expect(captured.method, 'POST');
     expect(captured.url.toString(), 'https://shazam-api.com/api/v2/recognize');
@@ -44,6 +49,12 @@ void main() {
     () async {
       var polls = 0;
       final client = MockClient((request) async {
+        if (request.url.path == '/api/v2/recognize') {
+          return http.Response(
+            jsonEncode({'status': 'processing', 'uuid': 'job-123'}),
+            202,
+          );
+        }
         expect(request.url.path, '/api/v2/results/job-123');
         expect(request.headers['authorization'], 'Bearer test-token');
         polls++;
@@ -71,10 +82,13 @@ void main() {
           200,
         );
       });
-      final api = RecognitionApi('test-token', client: client);
+      final recognizeAudio = RecognizeAudio(
+        RecognitionRepositoryImpl(RecognitionRemoteDataSource(client: client)),
+      );
 
-      final result = await api.waitForResult(
-        'job-123',
+      final result = await recognizeAudio(
+        Uint8List.fromList([1, 2, 3]),
+        apiKey: 'test-token',
         interval: Duration.zero,
         timeout: const Duration(seconds: 2),
       );

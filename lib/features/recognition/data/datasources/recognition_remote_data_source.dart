@@ -5,24 +5,25 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
-import '../models/recognition.dart';
+import '../../domain/entities/recognition.dart';
+import '../models/recognition_dto.dart';
 
-class RecognitionApi {
-  RecognitionApi(this.apiKey, {http.Client? client})
+class RecognitionRemoteDataSource {
+  RecognitionRemoteDataSource({http.Client? client})
     : _client = client ?? http.Client();
 
   static final Uri _baseUri = Uri.https('shazam-api.com');
-  final String apiKey;
   final http.Client _client;
 
-  Future<RecognitionJob> recognizeAudio(
+  Future<RecognitionJob> submitAudio(
     Uint8List audio, {
+    required String apiKey,
     String filename = 'sonara-recording.wav',
   }) async {
-    _requireKey();
+    _requireKey(apiKey);
     final request =
         http.MultipartRequest('POST', _baseUri.resolve('/api/v2/recognize'))
-          ..headers.addAll(_headers)
+          ..headers.addAll(_headers(apiKey))
           ..files.add(
             http.MultipartFile.fromBytes(
               'file',
@@ -34,47 +35,32 @@ class RecognitionApi {
     final response = await http.Response.fromStream(
       await _client.send(request).timeout(const Duration(seconds: 60)),
     );
-    return RecognitionJob.fromJson(_decode(response));
+    return RecognitionJobDto.fromJson(_decode(response)).job;
   }
 
-  Future<RecognitionOutcome> getResult(String uuid) async {
-    _requireKey();
+  Future<RecognitionOutcome> getResult(
+    String uuid, {
+    required String apiKey,
+  }) async {
+    _requireKey(apiKey);
     final encodedUuid = Uri.encodeComponent(uuid);
     final response = await _client
         .get(
           _baseUri.resolve('/api/v2/results/$encodedUuid'),
-          headers: _headers,
+          headers: _headers(apiKey),
         )
         .timeout(const Duration(seconds: 30));
-    return RecognitionOutcome.fromJson(_decode(response));
+    return RecognitionOutcomeDto.fromJson(_decode(response)).outcome;
   }
 
-  Future<RecognitionOutcome> waitForResult(
-    String uuid, {
-    Duration interval = const Duration(seconds: 2),
-    Duration timeout = const Duration(minutes: 3),
-    void Function()? onPoll,
-  }) async {
-    final stopwatch = Stopwatch()..start();
-    while (stopwatch.elapsed < timeout) {
-      final result = await getResult(uuid);
-      if (result.status != 'processing') return result;
-      onPoll?.call();
-      await Future<void>.delayed(interval);
-    }
-    throw const RecognitionApiException(
-      'La identificación sigue procesándose. Inténtalo de nuevo en un momento.',
-    );
-  }
-
-  Map<String, String> get _headers => {
+  Map<String, String> _headers(String apiKey) => {
     'Authorization': 'Bearer ${apiKey.trim()}',
     'Accept': 'application/json',
   };
 
-  void _requireKey() {
+  void _requireKey(String apiKey) {
     if (apiKey.trim().isEmpty) {
-      throw const RecognitionApiException(
+      throw const RecognitionException(
         'Agrega tu clave de shazam-api.com en Ajustes.',
       );
     }
@@ -93,14 +79,14 @@ class RecognitionApi {
           data['error']?.toString() ??
           data['message']?.toString() ??
           'Error HTTP ${response.statusCode}.';
-      throw RecognitionApiException(
+      throw RecognitionException(
         error,
         statusCode: response.statusCode,
         code: data['code']?.toString(),
       );
     }
     if (decoded is! Map) {
-      throw const RecognitionApiException(
+      throw const RecognitionException(
         'La API devolvió una respuesta inválida.',
       );
     }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../app/app_theme.dart';
-import '../../../models/recognition.dart';
+import '../../../../app/app_theme.dart';
+import '../../domain/entities/recognition.dart';
 import 'ui_bits.dart';
 
 class TrackResult extends StatelessWidget {

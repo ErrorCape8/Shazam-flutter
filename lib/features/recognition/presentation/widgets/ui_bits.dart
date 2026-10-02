@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/app_theme.dart';
+import '../../../../app/app_theme.dart';
 
 class ContentFrame extends StatelessWidget {
   const ContentFrame({required this.wide, required this.child, super.key});

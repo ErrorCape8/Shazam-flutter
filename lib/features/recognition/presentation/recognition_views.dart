@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../app/app_theme.dart';
-import '../../models/recognition.dart';
+import '../../../app/app_theme.dart';
+import '../domain/entities/recognition.dart';
 import 'widgets/microphone_panel.dart';
 import 'widgets/recognition_status.dart';
 import 'widgets/track_result.dart';

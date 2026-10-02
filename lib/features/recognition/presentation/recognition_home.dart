@@ -1,18 +1,24 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../models/recognition.dart';
-import '../../services/recognition_api.dart';
+import '../domain/entities/recognition.dart';
+import '../domain/repositories/recognition_settings_repository.dart';
+import '../domain/usecases/recognize_audio.dart';
 import 'recognition_views.dart';
 import 'widgets/recognition_navigation.dart';
 
 class RecognitionHome extends StatefulWidget {
-  const RecognitionHome({super.key});
+  const RecognitionHome({
+    required this.recognizeAudio,
+    required this.settingsRepository,
+    super.key,
+  });
+
+  final RecognizeAudio recognizeAudio;
+  final RecognitionSettingsRepository settingsRepository;
 
   @override
   State<RecognitionHome> createState() => _RecognitionHomeState();
@@ -30,8 +36,6 @@ class _RecognitionHomeState extends State<RecognitionHome> {
   String _jobId = '';
   RecognitionOutcome? _outcome;
 
-  RecognitionApi get _api => RecognitionApi(_apiKey);
-
   @override
   void initState() {
     super.initState();
@@ -46,24 +50,11 @@ class _RecognitionHomeState extends State<RecognitionHome> {
   }
 
   Future<void> _loadKey() async {
-    final preferences = await SharedPreferences.getInstance();
-    final saved = preferences.getString('shazam_api_key') ?? '';
-    final savedTrack = preferences.getString('last_recognized_track');
+    final saved = await widget.settingsRepository.loadApiKey();
+    final savedTrack = await widget.settingsRepository.loadLastTrack();
     RecognitionOutcome? lastOutcome;
     if (savedTrack != null) {
-      try {
-        final decoded = jsonDecode(savedTrack);
-        if (decoded is Map) {
-          lastOutcome = RecognitionOutcome(
-            status: 'success',
-            tracks: [
-              RecognitionTrack.fromJson(Map<String, dynamic>.from(decoded)),
-            ],
-          );
-        }
-      } on FormatException {
-        await preferences.remove('last_recognized_track');
-      }
+      lastOutcome = RecognitionOutcome(status: 'success', tracks: [savedTrack]);
     }
     if (!mounted) return;
     setState(() {
@@ -75,8 +66,7 @@ class _RecognitionHomeState extends State<RecognitionHome> {
 
   Future<void> _saveKey() async {
     final value = _keyController.text.trim();
-    final preferences = await SharedPreferences.getInstance();
-    await preferences.setString('shazam_api_key', value);
+    await widget.settingsRepository.saveApiKey(value);
     if (!mounted) return;
     setState(() => _apiKey = value);
     _notify(
@@ -100,14 +90,17 @@ class _RecognitionHomeState extends State<RecognitionHome> {
       _tab = 0;
     });
     try {
-      final job = await _api.recognizeAudio(audio);
-      if (!mounted) return;
-      setState(() {
-        _jobId = job.uuid;
-        _statusMessage = 'Solicitud recibida. Esperando resultado...';
-      });
-      final result = await _api.waitForResult(
-        job.uuid,
+      final result = await widget.recognizeAudio(
+        audio,
+        apiKey: _apiKey,
+        onSubmitted: (uuid) {
+          if (mounted) {
+            setState(() {
+              _jobId = uuid;
+              _statusMessage = 'Solicitud recibida. Esperando resultado...';
+            });
+          }
+        },
         onPoll: () {
           if (mounted) {
             setState(() => _statusMessage = 'Analizando audio...');
@@ -116,11 +109,7 @@ class _RecognitionHomeState extends State<RecognitionHome> {
       );
       if (!mounted) return;
       if (result.status == 'success' && result.tracks.isNotEmpty) {
-        final preferences = await SharedPreferences.getInstance();
-        await preferences.setString(
-          'last_recognized_track',
-          jsonEncode(result.tracks.first.toJson()),
-        );
+        await widget.settingsRepository.saveLastTrack(result.tracks.first);
       }
       setState(() {
         _outcome = result;
@@ -138,7 +127,7 @@ class _RecognitionHomeState extends State<RecognitionHome> {
           _ => result.error,
         };
       });
-    } on RecognitionApiException catch (error) {
+    } on RecognitionException catch (error) {
       if (!mounted) return;
       setState(() {
         _busy = false;
@@ -153,7 +142,7 @@ class _RecognitionHomeState extends State<RecognitionHome> {
     }
   }
 
-  String _friendlyError(RecognitionApiException error) {
+  String _friendlyError(RecognitionException error) {
     if (error.statusCode == 401) {
       return 'Clave invalida o ausente. Revisala en Ajustes.';
     }
