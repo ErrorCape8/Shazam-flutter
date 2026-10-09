@@ -42,6 +42,7 @@ abstract final class AppTheme {
     snackBarTheme: const SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
       backgroundColor: Color(0xFF202B39),
+      contentTextStyle: TextStyle(color: Colors.white),
     ),
   );
 }

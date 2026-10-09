@@ -79,7 +79,7 @@ class _RecognitionHomeState extends State<RecognitionHome> {
   Future<void> _recognizeAudio(Uint8List audio) async {
     if (_apiKey.trim().isEmpty) {
       setState(() => _tab = 1);
-      _notify('Configura tu clave de shazam-api.com en Ajustes.');
+      _showError('Configura tu clave de shazam-api.com en Ajustes.');
       return;
     }
     setState(() {
@@ -111,34 +111,38 @@ class _RecognitionHomeState extends State<RecognitionHome> {
       if (result.status == 'success' && result.tracks.isNotEmpty) {
         await widget.settingsRepository.saveLastTrack(result.tracks.first);
       }
+      final statusMessage = switch (result.status) {
+        'success' =>
+          result.tracks.isEmpty
+              ? 'La API no devolvio detalles de la cancion.'
+              : '',
+        'no_matches' => 'No se encontro una coincidencia para este audio.',
+        'failed' =>
+          result.error.isEmpty
+              ? 'No se pudo procesar este audio.'
+              : result.error,
+        _ => result.error,
+      };
       setState(() {
         _outcome = result;
         _busy = false;
-        _statusMessage = switch (result.status) {
-          'success' =>
-            result.tracks.isEmpty
-                ? 'La API no devolvio detalles de la cancion.'
-                : '',
-          'no_matches' => 'No se encontro una coincidencia para este audio.',
-          'failed' =>
-            result.error.isEmpty
-                ? 'No se pudo procesar este audio.'
-                : result.error,
-          _ => result.error,
-        };
+        _statusMessage = '';
       });
+      if (statusMessage.isNotEmpty) _showError(statusMessage);
     } on RecognitionException catch (error) {
       if (!mounted) return;
       setState(() {
         _busy = false;
-        _statusMessage = _friendlyError(error);
+        _statusMessage = '';
       });
+      _showError(_friendlyError(error));
     } catch (error) {
       if (!mounted) return;
       setState(() {
         _busy = false;
-        _statusMessage = error.toString();
+        _statusMessage = '';
       });
+      _showError(error.toString());
     }
   }
 
@@ -173,12 +177,14 @@ class _RecognitionHomeState extends State<RecognitionHome> {
   Future<void> _recordAndRecognize() async {
     if (_apiKey.trim().isEmpty) {
       setState(() => _tab = 1);
-      _notify('Configura tu clave de shazam-api.com en Ajustes.');
+      _showError('Configura tu clave de shazam-api.com en Ajustes.');
       return;
     }
     try {
       if (!await _recorder.hasPermission()) {
-        _notify('Permite el acceso al microfono para identificar la musica.');
+        _showError(
+          'Permite el acceso al microfono para identificar la musica.',
+        );
         return;
       }
       final chunks = <int>[];
@@ -216,8 +222,9 @@ class _RecognitionHomeState extends State<RecognitionHome> {
       setState(() {
         _recording = false;
         _busy = false;
-        _statusMessage = error.toString();
+        _statusMessage = '';
       });
+      _showError(error.toString());
     }
   }
 
@@ -251,6 +258,16 @@ class _RecognitionHomeState extends State<RecognitionHome> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black54,
+      builder: (_) => _TransientErrorDialog(message: message),
+    );
   }
 
   @override
@@ -308,5 +325,61 @@ class _RecognitionHomeState extends State<RecognitionHome> {
     controller: _keyController,
     hasKey: _apiKey.isNotEmpty,
     onSave: _saveKey,
+  );
+}
+
+class _TransientErrorDialog extends StatefulWidget {
+  const _TransientErrorDialog({required this.message});
+
+  final String message;
+
+  @override
+  State<_TransientErrorDialog> createState() => _TransientErrorDialogState();
+}
+
+class _TransientErrorDialogState extends State<_TransientErrorDialog> {
+  late final Timer _dismissTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _dismissTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted) Navigator.of(context).pop();
+    });
+  }
+
+  @override
+  void dispose() {
+    _dismissTimer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Dialog(
+    backgroundColor: const Color(0xFF1E1E20),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+      side: const BorderSide(color: Color(0xFF2C2C2F)),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.error_outline_rounded,
+            color: Color(0xFFFF7B6B),
+            size: 24,
+          ),
+          const SizedBox(width: 14),
+          Flexible(
+            child: Text(
+              widget.message,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
+          ),
+        ],
+      ),
+    ),
   );
 }

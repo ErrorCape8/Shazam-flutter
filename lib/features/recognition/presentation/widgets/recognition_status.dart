@@ -84,8 +84,8 @@ class RecognitionStatus extends StatelessWidget {
           child: Text(
             message,
             style: const TextStyle(
-              color: AppColors.text,
-              fontSize: 12,
+              color: Colors.white,
+              fontSize: 13,
               height: 1.45,
             ),
           ),

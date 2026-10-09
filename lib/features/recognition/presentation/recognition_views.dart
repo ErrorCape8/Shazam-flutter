@@ -81,7 +81,7 @@ class DiscoverView extends StatelessWidget {
         ] else if (statusMessage.isNotEmpty)
           RecognitionStatus(
             message: statusMessage,
-            failed: outcome?.status == 'failed',
+            failed: outcome == null || outcome?.status == 'failed',
           )
         else
           const QuietNote('Las canciones identificadas apareceran aqui.'),
