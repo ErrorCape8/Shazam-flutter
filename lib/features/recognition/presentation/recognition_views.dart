@@ -35,7 +35,6 @@ class DiscoverView extends StatelessWidget {
     child: ListView(
       padding: const EdgeInsets.fromLTRB(0, 32, 0, 40),
       children: [
-        const Center(child: Eyebrow('IDENTIFICACION DE AUDIO - API V2')),
         const SizedBox(height: 10),
         Text(
           'Encuentra el sonido.',
@@ -157,11 +156,6 @@ class SettingsView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 23),
-        const InfoBlock(
-          icon: Icons.shield_outlined,
-          text: 'La clave se almacena localmente en este dispositivo. Para una app publicada, ponla en un backend para no exponerla en el cliente.',
-        ),
-        const SizedBox(height: 25),
         const SectionLabel('FLUJO DE RECONOCIMIENTO', 'V2'),
         const SizedBox(height: 10),
         const EndpointInfo(
