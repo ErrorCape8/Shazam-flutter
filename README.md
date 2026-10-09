@@ -1,14 +1,16 @@
-# Feel the Music
+# Sonara
 
-App Flutter para identificar canciones con el microfono y la API v2 de Shazam API.
+App Flutter para identificar canciones con el micrófono usando la API v2 de Shazam.
 
-##VIDEO DE ENTREGABLE C
+## Video del Entregable C
 
-https://youtu.be/M3FGm6w64Qo
+[![Video Entregable C](https://img.youtube.com/vi/M3FGm6w64Qo/maxresdefault.jpg)](https://youtu.be/M3FGm6w64Qo)
 
-##INTEGRANTES
-Camilo Barrios
-Santiago Alvarado
-Braynner Grillo
-Luis Gonzales
-Alejandro Morales
+
+## Integrantes
+
+- Camilo Barrios
+- Santiago Alvarado
+- Braynner Grillo
+- Luis Gonzales
+- Alejandro Morales
